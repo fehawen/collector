@@ -1,0 +1,16 @@
+{
+  "name": "collector",
+  "version": "0.1.0",
+  "description": "Browser-based evidence collection for web applications.",
+  "license": "ISC",
+  "type": "module",
+  "bin": {
+    "collector": "./main.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}

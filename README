@@ -1,0 +1,25 @@
+collector
+---------
+
+collector is a browser-based evidence collection tool for web applications.
+
+Its purpose is to observe web applications as a browser would, collect
+structured evidence about what it encounters, and preserve that evidence for
+downstream analysis.
+
+collector intentionally separates collection from analysis.  It does not attempt
+to identify technologies, infer business logic, detect vulnerabilities or
+generate reports.  Instead, it produces a deterministic, versioned dataset that
+can be processed by other tools.
+
+Using browser automation together with an HTTP proxy, collector records browser
+actions, downloaded artifacts and network traffic while exploring an
+application.  The resulting evidence is designed to support workflows such as
+application mapping, technology fingerprinting, JavaScript analysis, entity
+extraction, AI-assisted reasoning and security research.
+
+collector is built around a small set of focused modules that communicate
+through explicit, structured data.  Every stage of the collection process is
+intended to be observable, reproducible and independently testable.
+
+See documents in the docs/ directory for more details.

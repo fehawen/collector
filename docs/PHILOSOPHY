@@ -1,0 +1,142 @@
+philosophy
+----------
+
+Purpose
+
+    The collector exists to gather evidence from web applications.
+
+    It observes.
+
+    It records.
+
+    It preserves.
+
+    It does not analyze.
+
+
+Role
+
+    The collector is a source of truth.
+
+    It produces structured evidence for downstream tools.
+
+    Interpretation belongs elsewhere.
+
+
+Evidence
+
+    Evidence is expensive.
+
+    Reasoning is cheap.
+
+    A collector may only have one opportunity to observe a web application
+    in a particular state. Collected evidence should therefore be preserved
+    whenever practical, allowing future analysis without repeating the
+    crawl.
+
+
+Collection
+
+    Collect broadly.
+
+    Discard nothing unnecessarily.
+
+    Preserve provenance.
+
+    Every collected artifact should retain enough information to understand
+    where it came from and how it was discovered.
+
+
+Analysis
+
+    Analysis is intentionally separated from collection.
+
+    The collector does not infer technologies, business logic, entities,
+    vulnerabilities or other higher-level concepts.
+
+    Downstream tools are responsible for interpretation.
+
+
+Architecture
+
+    Build small, focused modules.
+
+    Give each module one responsibility.
+
+    Modules communicate through explicit, structured data rather than
+    in-memory coupling.
+
+    Simplicity is preferred over abstraction.
+
+
+State
+
+    State should be explicit.
+
+    Work queues, visited pages and crawl metadata should be visible and
+    inspectable rather than hidden inside control flow.
+
+    The current state of a crawl should be understandable at any point.
+
+
+Determinism
+
+    Given the same input and the same application state, the collector
+    should strive to produce the same output.
+
+    Collection should avoid unnecessary randomness.
+
+
+Output
+
+    Output should be structured.
+
+    Output should be versioned.
+
+    Output should be machine-readable.
+
+    Output should remain practical for humans to inspect.
+
+    JSONL is preferred where it naturally represents a stream of events.
+
+
+Provenance
+
+    Every observation should retain its origin.
+
+    Pages, actions, artifacts and discoveries should be traceable back to
+    the crawl that produced them.
+
+
+Browser Automation
+
+    The collector uses browser automation to observe applications as users
+    experience them.
+
+    It is not a browser test suite.
+
+    It does not verify correctness.
+
+    It collects evidence.
+
+
+Scope
+
+    The collector should remain focused on collection.
+
+    Features that primarily perform analysis, enrichment or reporting belong
+    in downstream tools.
+
+    The collector should resist expanding beyond its role.
+
+
+Evolution
+
+    The collector should be easy to extend without changing its core
+    architecture.
+
+    New discovery mechanisms, artifact types and collection strategies
+    should integrate naturally into the existing design.
+
+    Growth should come from adding focused capabilities rather than
+    increasing complexity.
