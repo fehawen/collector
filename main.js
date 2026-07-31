@@ -1,5 +1,6 @@
 import process from 'node:process'
 
+import { closeBrowser, launchBrowser } from './browser.js'
 import { createRun } from './run.js'
 
 const COLLECTOR_VERSION = '0.1.0'
@@ -10,6 +11,9 @@ async function main() {
     printBanner()
 
     const run = await createRun(target)
+    const browser = await launchBrowser()
+
+    await closeBrowser(browser)
 
     printRun(run)
 }
