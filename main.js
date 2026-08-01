@@ -8,6 +8,7 @@ import {
     navigate,
     observePage
 } from './browser.js'
+import { recordObservation } from './observations.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -21,10 +22,10 @@ async function main() {
 
     try {
         const page = await createPage(browser)
-
         await navigate(page, target)
 
         const observation = await observePage(page)
+        await recordObservation(run, observation)
     }
     finally {
         await closeBrowser(browser)
@@ -34,7 +35,7 @@ async function main() {
 }
 
 function parseArguments() {
-    const [, , target] = process.argv
+    const target = process.argv[2]
 
     if (!target) {
         usage()
