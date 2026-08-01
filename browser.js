@@ -17,3 +17,11 @@ export async function createPage(browser) {
 export async function navigate(page, url) {
     await page.goto(url)
 }
+
+export async function observePage(page) {
+    return {
+        url: page.url(),
+        title: await page.title(),
+        html: await page.content()
+    }
+}
