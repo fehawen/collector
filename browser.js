@@ -9,3 +9,11 @@ export async function launchBrowser() {
 export async function closeBrowser(browser) {
     await browser.close()
 }
+
+export async function createPage(browser) {
+    return await browser.newPage()
+}
+
+export async function navigate(page, url) {
+    await page.goto(url)
+}

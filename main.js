@@ -1,6 +1,6 @@
 import process from 'node:process'
 
-import { closeBrowser, launchBrowser } from './browser.js'
+import { closeBrowser, launchBrowser, createPage, navigate } from './browser.js'
 import { createRun } from './run.js'
 
 const COLLECTOR_VERSION = '0.1.0'
@@ -13,7 +13,14 @@ async function main() {
     const run = await createRun(target)
     const browser = await launchBrowser()
 
-    await closeBrowser(browser)
+    try {
+        const page = await createPage(browser)
+
+        await navigate(page, target)
+    }
+    finally {
+        await closeBrowser(browser)
+    }
 
     printRun(run)
 }
