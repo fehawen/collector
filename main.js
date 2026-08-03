@@ -9,6 +9,7 @@ import {
     observePage
 } from './browser.js'
 import { recordObservation } from './observations.js'
+import { discoverResources } from './discover.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -26,6 +27,9 @@ async function main() {
 
         const observation = await observePage(page)
         await recordObservation(run, observation)
+
+        const discoveries = await discoverResources(page)
+        console.log(JSON.stringify(discoveries, null, 4))
     }
     finally {
         await closeBrowser(browser)
