@@ -3,7 +3,7 @@ philosophy
 
 Purpose
 
-    The collector exists to gather evidence from web applications.
+    collector exists to gather evidence from web applications.
 
     It observes.
 
@@ -13,10 +13,16 @@ Purpose
 
     It does not analyze.
 
+    collector answers one question:
+
+        "What exists?"
+
+    Everything else is someone else's responsibility.
+
 
 Role
 
-    The collector is a source of truth.
+    collector is a source of truth.
 
     It produces structured evidence for downstream tools.
 
@@ -51,7 +57,7 @@ Analysis
 
     Analysis is intentionally separated from collection.
 
-    The collector does not infer technologies, business logic, entities,
+    collector does not infer technologies, business logic, entities,
     vulnerabilities or other higher-level concepts.
 
     Downstream tools are responsible for interpretation.
@@ -81,8 +87,8 @@ State
 
 Determinism
 
-    Given the same input and the same application state, the collector
-    should strive to produce the same output.
+    Given the same input and the same application state, collector should strive
+    to produce the same output.
 
     Collection should avoid unnecessary randomness.
 
@@ -110,7 +116,7 @@ Provenance
 
 Browser Automation
 
-    The collector uses browser automation to observe applications as users
+    collector uses browser automation to observe applications as users
     experience them.
 
     It is not a browser test suite.
@@ -122,17 +128,17 @@ Browser Automation
 
 Scope
 
-    The collector should remain focused on collection.
+    collector should remain focused on collection.
 
     Features that primarily perform analysis, enrichment or reporting belong
     in downstream tools.
 
-    The collector should resist expanding beyond its role.
+    collector should resist expanding beyond its role.
 
 
 Evolution
 
-    The collector should be easy to extend without changing its core
+    collector should be easy to extend without changing its core
     architecture.
 
     New discovery mechanisms, artifact types and collection strategies

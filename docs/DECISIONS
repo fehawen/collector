@@ -5,18 +5,16 @@ ADR-001: HTTP capture is owned by mitmproxy.
 
     Context
 
-        The collector requires a complete record of HTTP
-        requests and responses.
+        collector requires a complete record of HTTP requests and responses.
 
-        HTTP capture should remain independent of browser
-        automation.
+        HTTP capture should remain independent of browser automation.
 
     Decision
 
         mitmproxy is responsible for producing capture.jsonl.
 
-        The collector consumes HTTP traffic through the proxy but does not
-        generate capture.jsonl itself.
+        collector consumes HTTP traffic through the proxy but does not generate
+        capture.jsonl itself.
 
     Consequences
 
@@ -25,10 +23,10 @@ ADR-001: HTTP capture is owned by mitmproxy.
         Any client capable of using the proxy can produce the same capture
         format.
 
-        The collector remains focused on browser automation.
+        collector remains focused on browser automation.
 
 
-ADR-002: The collector owns browser evidence.
+ADR-002: collector owns browser evidence.
 
     Context
 
@@ -37,40 +35,38 @@ ADR-002: The collector owns browser evidence.
 
     Decision
 
-        The collector produces actions.jsonl.
+        collector produces actions.jsonl.
 
-        The collector produces artifacts.jsonl.
+        collector produces artifacts.jsonl.
 
-        The collector stores collected artifacts on disk.
-
+        collector stores collected artifacts on disk.
 
     Consequences
 
         Browser interactions remain separate from HTTP capture.
 
-        Downstream tools can correlate browser activity with
-        network traffic.
+        Downstream tools can correlate browser activity with network traffic.
 
 
 ADR-003: Collection and analysis are separate concerns.
 
     Context
 
-        Collecting evidence and interpreting evidence have
-        different responsibilities.
+        Collecting evidence and interpreting evidence have different
+        responsibilities.
 
     Decision
 
-        The collector performs collection only.
+        collector performs collection only.
 
         Technology detection, entity extraction, business logic inference,
         vulnerability analysis and reporting belong to downstream tools.
 
     Consequences
 
-        The collector remains deterministic.
+        collector remains deterministic.
 
-        New analysis techniques can be introduced without changing the collector.
+        New analysis techniques can be introduced without changing collector.
 
 
 ADR-004: The crawl frontier is explicit.
@@ -82,7 +78,7 @@ ADR-004: The crawl frontier is explicit.
 
     Decision
 
-        The collector maintains an explicit frontier.
+        collector maintains an explicit frontier.
 
         URLs are processed as work items rather than recursive browser actions.
 
@@ -132,7 +128,6 @@ ADR-006: Discovery preserves provenance.
 
     Consequences
 
-
         Later analysis can determine why a page entered the crawl.
 
         New discovery mechanisms integrate naturally into the existing
@@ -148,7 +143,6 @@ ADR-007: Structured output is versioned.
     Decision
 
         Structured outputs include an explicit schema version.
-
 
     Consequences
 
