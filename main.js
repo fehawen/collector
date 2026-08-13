@@ -10,6 +10,7 @@ import {
 } from './browser.js'
 import { recordObservation } from './observations.js'
 import { discoverResources } from './discover.js'
+import { createQueue } from './queue.js'
 import { preserveArtifact, recordArtifact } from './artifacts.js'
 
 const COLLECTOR_VERSION = '0.1.0'
@@ -29,16 +30,22 @@ async function main() {
         const observation = await observePage(page)
         await recordObservation(run, observation)
 
+        const queue = createQueue()
+
         const discoveries = await discoverResources(page)
         for (const discovery of discoveries) {
             if (discovery.type !== 'script') {
                 continue
             }
 
+            queue.add(discovery)
+        }
+
+        let discovery
+        while ((discovery = queue.next()) !== null) {
             const artifact = await preserveArtifact(run, discovery)
             await recordArtifact(run, artifact)
         }
-
     }
     finally {
         await closeBrowser(browser)
