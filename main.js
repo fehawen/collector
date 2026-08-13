@@ -10,6 +10,7 @@ import {
 } from './browser.js'
 import { recordObservation } from './observations.js'
 import { discoverResources } from './discover.js'
+import { preserveArtifact } from './artifacts.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -29,7 +30,16 @@ async function main() {
         await recordObservation(run, observation)
 
         const discoveries = await discoverResources(page)
-        console.log(JSON.stringify(discoveries, null, 4))
+        for (const discovery of discoveries) {
+            if (discovery.type !== 'script') {
+                continue
+            }
+
+            const artifact = await preserveArtifact(run, discovery)
+
+            console.log(JSON.stringify(artifact, null, 4))
+        }
+
     }
     finally {
         await closeBrowser(browser)
