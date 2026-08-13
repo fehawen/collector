@@ -10,7 +10,7 @@ import {
 } from './browser.js'
 import { recordObservation } from './observations.js'
 import { discoverResources } from './discover.js'
-import { preserveArtifact } from './artifacts.js'
+import { preserveArtifact, recordArtifact } from './artifacts.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -36,8 +36,7 @@ async function main() {
             }
 
             const artifact = await preserveArtifact(run, discovery)
-
-            console.log(JSON.stringify(artifact, null, 4))
+            await recordArtifact(run, artifact)
         }
 
     }

@@ -1,6 +1,7 @@
+import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
+import { appendJsonLine } from './util.js'
 
 export async function preserveArtifact(run, discovery) {
     if (discovery.type !== 'script') {
@@ -39,4 +40,9 @@ export async function preserveArtifact(run, discovery) {
         sha256,
         path: relativePath
     }
+}
+
+export async function recordArtifact(run, artifact) {
+    const file = path.join(run.directory, 'artifacts.jsonl')
+    await appendJsonLine(file, artifact)
 }
