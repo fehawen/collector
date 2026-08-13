@@ -17,12 +17,10 @@ export async function discoverResources(page) {
     for (const rule of DISCOVERY_RULES) {
         const found = await page.$$eval(
             rule.selector,
-            (elements, { type, property }) => {
-                return elements.map(element => ({
-                    type,
-                    url: element[property]
-                }))
-            },
+            (elements, { type, property }) => elements.map(element => ({
+                type,
+                url: element[property]
+            })),
             {
                 type: rule.type,
                 property: rule.property
@@ -33,4 +31,24 @@ export async function discoverResources(page) {
     }
 
     return discoveries
+}
+
+export async function discoverPages(page) {
+    return await page.$$eval(
+        'a[href]',
+        (elements) => elements.map((element) => {
+            const url = new URL(element.href)
+
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+                return null
+            }
+
+            url.hash = ''
+
+            return {
+                type: 'page',
+                url: url.href
+            }
+        }).filter(Boolean)
+    )
 }

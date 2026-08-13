@@ -9,7 +9,7 @@ import {
     observePage
 } from './browser.js'
 import { recordObservation } from './observations.js'
-import { discoverResources } from './discover.js'
+import { discoverResources, discoverPages } from './discover.js'
 import { createQueue } from './queue.js'
 import { preserveArtifact, recordArtifact } from './artifacts.js'
 
@@ -33,6 +33,8 @@ async function main() {
         const queue = createQueue()
 
         const discoveries = await discoverResources(page)
+        const pageDiscoveries = await discoverPages(page)
+
         for (const discovery of discoveries) {
             if (discovery.type !== 'script') {
                 continue
