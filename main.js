@@ -8,10 +8,16 @@ import {
     navigate,
     observePage
 } from './browser.js'
+import {
+    discoverPages,
+    discoverResources
+} from './discover.js'
+import {
+    preserveArtifact,
+    recordArtifact
+} from './artifacts.js'
 import { recordObservation } from './observations.js'
-import { discoverResources, discoverPages } from './discover.js'
 import { createQueue } from './queue.js'
-import { preserveArtifact, recordArtifact } from './artifacts.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -25,28 +31,38 @@ async function main() {
 
     try {
         const page = await createPage(browser)
-        await navigate(page, target)
-
-        const observation = await observePage(page)
-        await recordObservation(run, observation)
-
         const queue = createQueue()
 
-        const discoveries = await discoverResources(page)
-        const pageDiscoveries = await discoverPages(page)
-
-        for (const discovery of discoveries) {
-            if (discovery.type !== 'script') {
-                continue
-            }
-
-            queue.add(discovery)
-        }
+        queue.add({
+            type: 'page',
+            url: target
+        })
 
         let discovery
+
         while ((discovery = queue.next()) !== null) {
-            const artifact = await preserveArtifact(run, discovery)
-            await recordArtifact(run, artifact)
+            if (discovery.type === 'page') {
+                await navigate(page, discovery.url)
+
+                const observation = await observePage(page)
+                await recordObservation(run, observation)
+
+                const resources = await discoverResources(page)
+                const pages = await discoverPages(page)
+
+                for (const resource of resources) {
+                    queue.add(resource)
+                }
+
+                for (const pageDiscovery of pages) {
+                    queue.add(pageDiscovery)
+                }
+            }
+
+            if (discovery.type === 'script') {
+                const artifact = await preserveArtifact(run, discovery)
+                await recordArtifact(run, artifact)
+            }
         }
     }
     finally {
