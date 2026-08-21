@@ -18,6 +18,7 @@ import {
 } from './artifacts.js'
 import { recordObservation } from './observations.js'
 import { createQueue } from './queue.js'
+import { createPages } from './pages.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -32,6 +33,7 @@ async function main() {
     try {
         const page = await createPage(browser)
         const queue = createQueue()
+        const pages = createPages()
 
         queue.add({
             type: 'page',
@@ -42,19 +44,31 @@ async function main() {
 
         while ((discovery = queue.next()) !== null) {
             if (discovery.type === 'page') {
-                await navigate(page, discovery.url)
+                if (pages.has(discovery.url)) {
+                    continue
+                }
+
+                pages.add(discovery.url)
+
+                const result = await navigate(page, discovery.url)
+
+                if (result.type === 'download') {
+                    const artifact = await preserveArtifact(run, result)
+                    await recordArtifact(run, artifact)
+                    continue
+                }
 
                 const observation = await observePage(page)
                 await recordObservation(run, observation)
 
                 const resources = await discoverResources(page)
-                const pages = await discoverPages(page)
+                const pageDiscoveries = await discoverPages(page)
 
                 for (const resource of resources) {
                     queue.add(resource)
                 }
 
-                for (const pageDiscovery of pages) {
+                for (const pageDiscovery of pageDiscoveries) {
                     queue.add(pageDiscovery)
                 }
             }
