@@ -33,10 +33,10 @@ export async function discoverResources(page) {
     return discoveries
 }
 
-export async function discoverPages(page) {
+export async function discoverPages(page, targetOrigin) {
     return await page.$$eval(
         'a[href]',
-        (elements) => elements.map((element) => {
+        (elements, targetOrigin) => elements.map((element) => {
             const url = new URL(element.href)
 
             if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -45,10 +45,15 @@ export async function discoverPages(page) {
 
             url.hash = ''
 
+            const type = url.origin === targetOrigin
+                ? 'page'
+                : 'external'
+
             return {
-                type: 'page',
+                type,
                 url: url.href
             }
-        }).filter(Boolean)
+        }).filter(Boolean),
+        targetOrigin
     )
 }
