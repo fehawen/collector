@@ -62,9 +62,7 @@ async function main() {
                 await recordObservation(run, observation)
 
                 const resources = await discoverResources(page)
-
-                const targetOrigin = new URL(target).origin
-                const pageDiscoveries = await discoverPages(page, targetOrigin)
+                const pageDiscoveries = await discoverPages(page, target)
 
                 for (const resource of resources) {
                     queue.add(resource)

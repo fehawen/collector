@@ -1,3 +1,5 @@
+import { isInScope } from './scope.js'
+
 const DISCOVERY_RULES = [
     {
         type: "script",
@@ -33,10 +35,10 @@ export async function discoverResources(page) {
     return discoveries
 }
 
-export async function discoverPages(page, targetOrigin) {
-    return await page.$$eval(
+export async function discoverPages(page, target) {
+    const urls = await page.$$eval(
         'a[href]',
-        (elements, targetOrigin) => elements.map((element) => {
+        (elements) => elements.map((element) => {
             const url = new URL(element.href)
 
             if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -45,15 +47,14 @@ export async function discoverPages(page, targetOrigin) {
 
             url.hash = ''
 
-            const type = url.origin === targetOrigin
-                ? 'page'
-                : 'external'
-
-            return {
-                type,
-                url: url.href
-            }
-        }).filter(Boolean),
-        targetOrigin
+            return url.href
+        }).filter(Boolean)
     )
+
+    return urls.map((url) => ({
+        type: isInScope(url, target)
+            ? 'page'
+            : 'external',
+        url
+    }))
 }
