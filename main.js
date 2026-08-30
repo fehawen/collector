@@ -1,5 +1,6 @@
 import process from 'node:process'
 
+import { createConfig } from './config.js'
 import { createRun } from './run.js'
 import {
     closeBrowser,
@@ -19,11 +20,13 @@ import {
 import { recordObservation } from './observations.js'
 import { createQueue } from './queue.js'
 import { createPages } from './pages.js'
+import { createScope } from './scope.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
 async function main() {
     const target = parseArguments()
+    const config = createConfig(target)
 
     printBanner()
 
@@ -35,6 +38,8 @@ async function main() {
         const queue = createQueue()
         const pages = createPages()
 
+        const scope = createScope(config.scope)
+
         queue.add({
             type: 'page',
             url: target
@@ -42,7 +47,13 @@ async function main() {
 
         let discovery
 
-        while ((discovery = queue.next()) !== null) {
+        while (true) {
+            discovery = queue.next()
+
+            if (discovery === null) {
+                break
+            }
+
             if (discovery.type === 'page') {
                 if (pages.has(discovery.url)) {
                     continue
@@ -62,15 +73,18 @@ async function main() {
                 await recordObservation(run, observation)
 
                 const resources = await discoverResources(page)
-                const pageDiscoveries = await discoverPages(page, target)
+                const pageDiscoveries = await discoverPages(page)
 
                 for (const resource of resources) {
                     queue.add(resource)
                 }
 
                 for (const pageDiscovery of pageDiscoveries) {
-                    if (pageDiscovery.type === 'page') {
-                        queue.add(pageDiscovery)
+                    if (scope.isAllowed(pageDiscovery)) {
+                        queue.add({
+                            type: 'page',
+                            url: pageDiscovery
+                        })
                     }
                 }
             }

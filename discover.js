@@ -1,5 +1,3 @@
-import { isInScope } from './scope.js'
-
 const DISCOVERY_RULES = [
     {
         type: "script",
@@ -35,7 +33,7 @@ export async function discoverResources(page) {
     return discoveries
 }
 
-export async function discoverPages(page, target) {
+export async function discoverPages(page) {
     const urls = await page.$$eval(
         'a[href]',
         (elements) => elements.map((element) => {
@@ -51,10 +49,5 @@ export async function discoverPages(page, target) {
         }).filter(Boolean)
     )
 
-    return urls.map((url) => ({
-        type: isInScope(url, target)
-            ? 'page'
-            : 'external',
-        url
-    }))
+    return urls
 }
