@@ -5,10 +5,10 @@ import { timestamp, writeJson } from './util.js'
 const VERSION = 1
 const COLLECTOR_VERSION = '0.1.0'
 
-export async function createRun(targets) {
+export async function createRun(targets, output) {
     const id = runId()
     const started = timestamp()
-    const directory = path.join('runs', id)
+    const directory = path.join(output ?? '.', 'runs', id)
 
     const run = {
         id,

@@ -25,12 +25,12 @@ import { createScope } from './scope.js'
 const COLLECTOR_VERSION = '0.1.0'
 
 async function main() {
-    const configFile = parseArguments()
-    const config = await loadConfig(configFile)
+    const options = parseArguments()
+    const config = await loadConfig(options.config)
 
     printBanner()
 
-    const run = await createRun(config.targets)
+    const run = await createRun(config.targets, options.output)
     const browser = await launchBrowser()
 
     try {
@@ -107,15 +107,35 @@ async function main() {
 }
 
 function parseArguments() {
+    const args = process.argv.slice(2)
+
     if (
-        process.argv.length !== 4 ||
-        process.argv[2] !== '--config'
+        args.length < 2 ||
+        args[0] !== '--config'
     ) {
         usage()
         process.exit(1)
     }
 
-    return process.argv[3]
+    const config = args[1]
+    let output
+
+    if (args.length === 4) {
+        if (args[2] !== '--output') {
+            usage()
+            process.exit(1)
+        }
+
+        output = args[3]
+    } else if (args.length !== 2) {
+        usage()
+        process.exit(1)
+    }
+
+    return {
+        config,
+        output
+    }
 }
 
 function printBanner() {
@@ -133,7 +153,7 @@ function printRun(run) {
 }
 
 function usage() {
-    console.error('Usage: collector --config <file>')
+    console.error('Usage: collector --config <file> [--output <directory>]')
 }
 
 try {
