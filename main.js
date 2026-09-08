@@ -1,6 +1,6 @@
 import process from 'node:process'
 
-import { createConfig } from './config.js'
+import { loadConfig } from './config.js'
 import { createRun } from './run.js'
 import {
     closeBrowser,
@@ -25,12 +25,12 @@ import { createScope } from './scope.js'
 const COLLECTOR_VERSION = '0.1.0'
 
 async function main() {
-    const target = parseArguments()
-    const config = createConfig(target)
+    const configFile = parseArguments()
+    const config = await loadConfig(configFile)
 
     printBanner()
 
-    const run = await createRun(target)
+    const run = await createRun(config.targets)
     const browser = await launchBrowser()
 
     try {
@@ -40,10 +40,14 @@ async function main() {
 
         const scope = createScope(config.scope)
 
-        queue.add({
-            type: 'page',
-            url: target
-        })
+        for (const target of run.targets) {
+            if (scope.isAllowed(target)) {
+                queue.add({
+                    type: 'page',
+                    url: target
+                })
+            }
+        }
 
         let discovery
 
@@ -103,14 +107,15 @@ async function main() {
 }
 
 function parseArguments() {
-    const target = process.argv[2]
-
-    if (!target) {
+    if (
+        process.argv.length !== 4 ||
+        process.argv[2] !== '--config'
+    ) {
         usage()
         process.exit(1)
     }
 
-    return target
+    return process.argv[3]
 }
 
 function printBanner() {
@@ -119,13 +124,16 @@ function printBanner() {
 }
 
 function printRun(run) {
-    console.log(`Run ID : ${run.id}`)
-    console.log(`Target : ${run.target}`)
-    console.log(`Output : ${run.directory}`)
+    console.log(`Run ID  : ${run.id}`)
+    console.log(`Output  : ${run.directory}`)
+    console.log('Targets :')
+    for (const target of run.targets) {
+        console.log(`  ${target}`)
+    }
 }
 
 function usage() {
-    console.error('Usage: collector <url>')
+    console.error('Usage: collector --config <file>')
 }
 
 try {
