@@ -93,7 +93,7 @@ async function main() {
                 }
             }
 
-            if (discovery.type === 'script') {
+            if (discovery.type === 'script' || discovery.type === 'stylesheet') {
                 const artifact = await preserveArtifact(run, discovery)
                 await recordArtifact(run, artifact)
             }
