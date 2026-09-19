@@ -3,23 +3,51 @@ collector
 
 collector is a browser-based evidence collection tool for web applications.
 
-Its purpose is to observe web applications as a browser would, collect
-structured evidence about what it encounters, and preserve that evidence for
-downstream analysis.
+Its purpose is to observe web applications through a real browser, collect
+structured observations, and preserve selected artifacts for downstream
+analysis.
 
 collector intentionally separates collection from analysis.  It does not attempt
-to identify technologies, infer business logic, detect vulnerabilities or
-generate reports.  Instead, it produces a deterministic, versioned dataset that
-can be processed by other tools.
+to identify technologies, infer business logic, detect vulnerabilities, or
+generate reports.  It records what it observes and leaves interpretation to
+other tools.
 
-Using browser automation together with an HTTP proxy, collector records browser
-actions, downloaded artifacts and network traffic while exploring an
-application.  The resulting evidence is designed to support workflows such as
-application mapping, technology fingerprinting, JavaScript analysis, entity
-extraction, AI-assisted reasoning and security research.
+A collection run navigates to configured targets, discovers additional navigable
+pages, observes page state, and preserves selected browser-observed resources.
 
-collector is built around a small set of focused modules that communicate
-through explicit, structured data.  Every stage of the collection process is
-intended to be observable, reproducible and independently testable.
+The current collector produces:
 
-See documents in the docs/ directory for more details.
+- manifest.json
+    Run metadata and configured targets.
+
+- observations.jsonl
+    One record for each processed page, including its URL, title and HTML.
+
+- artifacts.jsonl
+    A record for each observed script or stylesheet response, including
+    its URL, SHA-256 hash and stored path.
+
+- artifacts/
+    The preserved script and stylesheet bytes.
+
+Artifact files are content-addressed using SHA-256.  Identical bytes encountered
+multiple times during a run are stored only once, while artifacts.jsonl
+preserves every observation of those bytes.
+
+Page traversal uses an explicit work queue.  Discovered URLs are canonicalized
+before being queued, and configured scope rules are applied before pages are
+processed.
+
+Configuration is supplied through a versioned JSON configuration file:
+
+    collector --config <file>
+
+An optional output directory can be supplied:
+
+    collector --config <file> --output <directory>
+
+collector is built from small, focused modules with explicit data flow and
+structured output.  The implementation favors simple control flow, observable
+state and independently testable components.
+
+See docs/ for the project's design philosophy and architectural decisions.
