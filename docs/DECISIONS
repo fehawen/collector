@@ -1,54 +1,7 @@
 decisions
 ---------
 
-ADR-001: HTTP capture is owned by mitmproxy.
-
-    Context
-
-        collector requires a complete record of HTTP requests and responses.
-
-        HTTP capture should remain independent of browser automation.
-
-    Decision
-
-        mitmproxy is responsible for producing capture.jsonl.
-
-        collector consumes HTTP traffic through the proxy but does not generate
-        capture.jsonl itself.
-
-    Consequences
-
-        HTTP capture becomes browser independent.
-
-        Any client capable of using the proxy can produce the same capture
-        format.
-
-        collector remains focused on browser automation.
-
-
-ADR-002: collector owns browser evidence.
-
-    Context
-
-        Browser automation produces information that cannot be obtained from
-        HTTP traffic alone.
-
-    Decision
-
-        collector produces actions.jsonl.
-
-        collector produces artifacts.jsonl.
-
-        collector stores collected artifacts on disk.
-
-    Consequences
-
-        Browser interactions remain separate from HTTP capture.
-
-        Downstream tools can correlate browser activity with network traffic.
-
-
-ADR-003: Collection and analysis are separate concerns.
+ADR-001: Collection and analysis are separate concerns.
 
     Context
 
@@ -64,12 +17,12 @@ ADR-003: Collection and analysis are separate concerns.
 
     Consequences
 
-        collector remains deterministic.
+        collector remains focused on producing evidence.
 
         New analysis techniques can be introduced without changing collector.
 
 
-ADR-004: The crawl frontier is explicit.
+ADR-002: The crawl frontier is explicit.
 
     Context
 
@@ -78,63 +31,101 @@ ADR-004: The crawl frontier is explicit.
 
     Decision
 
-        collector maintains an explicit frontier.
+        collector maintains an explicit work queue.
 
-        URLs are processed as work items rather than recursive browser actions.
+        Page URLs are represented as work items.
 
     Consequences
 
-        Crawl state becomes observable.
+        Crawl state is explicit.
 
-        Breadth-first and future traversal strategies become straightforward to
-        implement.
+        Queueing and processing remain separate concerns.
+
+        Traversal strategies can evolve without restructuring browser
+        operations.
 
 
-ADR-005: Every page visit has an identity.
+ADR-003: Page discovery is based on navigable links.
 
     Context
 
-        Browser actions, artifacts and HTTP traffic should be correlated to the
-        page that produced them.
+        collector needs to discover additional pages without treating every
+        browser resource as crawl work.
 
     Decision
 
-        Every page visit receives a unique page identifier.
+        collector discovers pages from HTTP and HTTPS links in the document.
 
-        Browser events reference the page identifier rather than relying solely
-        on timestamps.
+        URL fragments are removed before URLs enter the crawl frontier.
+
+        Only URLs permitted by the configured scope are queued.
 
     Consequences
 
-        Evidence can be correlated reliably.
+        Page traversal remains separate from resource observation.
 
-        Future analysis can reconstruct application behaviour with greater
-        precision.
+        Fragment variants of the same URL do not create separate crawl work.
+
+        Query strings remain significant and may therefore produce separate page
+        visits.
 
 
-ADR-006: Discovery preserves provenance.
+ADR-004: Browser-observed resources are captured from responses.
 
     Context
 
-        URLs may be discovered through many different sources, including HTML,
-        JavaScript, redirects, robots.txt, sitemap.xml and future discovery
-        mechanisms.
+        Earlier designs discovered script and stylesheet URLs from the DOM and
+        subsequently fetched those URLs separately.
+
+        This introduced an additional HTTP client into collection and could
+        preserve a resource merely because it was referenced rather than because
+        the browser actually received it.
 
     Decision
 
-        Every discovered URL records how it was discovered.
+        collector observes browser responses for scripts and stylesheets.
 
-        Discovery provenance is preserved throughout the crawl.
+        The response body is captured directly from the browser.
+
+        collector does not independently fetch discovered resource URLs.
 
     Consequences
 
-        Later analysis can determine why a page entered the crawl.
+        Preserved artifacts represent resources actually observed by the
+        browser.
 
-        New discovery mechanisms integrate naturally into the existing
-        architecture.
+        Resource capture remains part of the browser navigation lifecycle.
+
+        collector does not generate additional requests for these artifacts.
 
 
-ADR-007: Structured output is versioned.
+ADR-005: Artifact storage is content-addressed.
+
+    Context
+
+        The same script or stylesheet may be encountered by multiple pages.
+
+        Storing identical bytes repeatedly wastes space, while removing repeated
+        observations would lose provenance.
+
+    Decision
+
+        Artifact files are named using the SHA-256 hash of their bytes.
+
+        Identical bytes are stored only once within a run.
+
+        artifacts.jsonl records every observed artifact occurrence.
+
+    Consequences
+
+        Physical artifact storage is deduplicated.
+
+        Artifact provenance is preserved.
+
+        Each run remains self-contained.
+
+
+ADR-006: Structured output is versioned.
 
     Context
 
@@ -146,6 +137,27 @@ ADR-007: Structured output is versioned.
 
     Consequences
 
-        Older crawl data remains interpretable.
+        Older collection data remains interpretable.
 
         Downstream tools can evolve without ambiguity.
+
+
+ADR-007: Scope is enforced before page processing.
+
+    Context
+
+        collector may encounter links outside the intended collection scope.
+
+        Scope therefore needs to act as a collection boundary rather than merely
+        an analysis filter.
+
+    Decision
+
+        Configured scope rules are evaluated before initial targets enter the
+        queue and before discovered page URLs are queued.
+
+    Consequences
+
+        Out-of-scope pages are not intentionally navigated by collector.
+
+        Scope remains separate from page discovery and browser operations.

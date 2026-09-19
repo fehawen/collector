@@ -13,20 +13,20 @@ Purpose
 
     It does not analyze.
 
-    collector answers one question:
+    collector answers:
 
-        "What exists?"
+        "What did the browser observe?"
 
-    Everything else is someone else's responsibility.
+    Interpretation belongs elsewhere.
 
 
 Role
 
-    collector is a source of truth.
+    collector is a source of structured evidence.
 
-    It produces structured evidence for downstream tools.
+    It produces observations and preserved artifacts for downstream tools.
 
-    Interpretation belongs elsewhere.
+    It does not attempt to explain what those observations mean.
 
 
 Evidence
@@ -35,22 +35,26 @@ Evidence
 
     Reasoning is cheap.
 
-    A collector may only have one opportunity to observe a web application
-    in a particular state. Collected evidence should therefore be preserved
-    whenever practical, allowing future analysis without repeating the
-    crawl.
+    A collector may only have one opportunity to observe a web application in a
+    particular state.
+
+    Evidence should therefore be preserved whenever practical, allowing future
+    analysis without repeating collection.
 
 
 Collection
 
-    Collect broadly.
+
+    Collect what the browser actually encounters.
 
     Discard nothing unnecessarily.
 
-    Preserve provenance.
+    Preserve original artifact bytes.
 
-    Every collected artifact should retain enough information to understand
-    where it came from and how it was discovered.
+    Preserve enough metadata to understand where an artifact came from.
+
+    Do not introduce additional requests merely to reproduce resources that the
+    browser has already provided.
 
 
 Analysis
@@ -69,28 +73,72 @@ Architecture
 
     Give each module one responsibility.
 
-    Modules communicate through explicit, structured data rather than
-    in-memory coupling.
+    Prefer explicit data flow over implicit coupling.
 
-    Simplicity is preferred over abstraction.
+    Prefer simple control flow over abstraction.
+
+    Prefer observable state over hidden state.
 
 
 State
 
+
     State should be explicit.
 
-    Work queues, visited pages and crawl metadata should be visible and
-    inspectable rather than hidden inside control flow.
+    Work queues, visited pages and run metadata should be visible and
+    inspectable rather than hidden inside recursive control flow.
 
-    The current state of a crawl should be understandable at any point.
+    The state of a collection run should be understandable from its data and
+    output.
+
+
+Traversal
+
+    Page traversal is explicit.
+
+    Discovered URLs become work items in a queue.
+
+    Scope is applied before work is processed.
+
+    URL fragments are removed before URLs enter the crawl frontier.
+
+    Browser resources are observations produced by page navigation, not crawl
+    work in their own right.
+
+
+Browser Automation
+
+    collector uses browser automation as a collection mechanism.
+
+    It is not a browser test suite.
+
+    It does not verify correctness.
+
+    It collects evidence from browser state and browser-observed responses.
+
+
+Artifacts
+
+    Artifacts should represent bytes actually observed by the browser whenever
+    possible.
+
+    Artifact storage should avoid unnecessary duplication.
+
+    Deduplication must not destroy provenance.
+
+    The physical artifact store and the record of artifact observations are
+    therefore separate concerns.
 
 
 Determinism
 
     Given the same input and the same application state, collector should strive
-    to produce the same output.
+    to produce predictable output.
 
-    Collection should avoid unnecessary randomness.
+    Collection should avoid unnecessary randomness and hidden state.
+
+    Determinism does not imply that a live web application itself is
+    deterministic.
 
 
 Output
@@ -103,46 +151,46 @@ Output
 
     Output should remain practical for humans to inspect.
 
-    JSONL is preferred where it naturally represents a stream of events.
+    JSONL is preferred where it naturally represents a stream of observations.
 
 
 Provenance
 
-    Every observation should retain its origin.
+    Evidence should retain enough context to understand where it came from.
 
-    Pages, actions, artifacts and discoveries should be traceable back to
-    the crawl that produced them.
+    Artifact observations retain the URL associated with the observed bytes.
 
+    Run metadata identifies the collection run that produced the evidence.
 
-Browser Automation
-
-    collector uses browser automation to observe applications as users
-    experience them.
-
-    It is not a browser test suite.
-
-    It does not verify correctness.
-
-    It collects evidence.
+    Provenance should be preserved without introducing unnecessary complexity.
 
 
 Scope
 
+    Scope is a collection boundary.
+
+    collector should not intentionally navigate outside the configured scope.
+
+    Scope determines what collector processes, not what downstream tools should
+    consider interesting.
+
+
+Separation of Concerns
+
     collector should remain focused on collection.
 
-    Features that primarily perform analysis, enrichment or reporting belong
-    in downstream tools.
+    Features that primarily perform analysis, enrichment or reporting belong in
+    downstream tools.
 
     collector should resist expanding beyond its role.
 
 
 Evolution
 
-    collector should be easy to extend without changing its core
-    architecture.
+    collector should be easy to extend without changing its core architecture.
 
-    New discovery mechanisms, artifact types and collection strategies
-    should integrate naturally into the existing design.
+    New discovery mechanisms, artifact types and collection strategies should
+    integrate through focused capabilities.
 
-    Growth should come from adding focused capabilities rather than
-    increasing complexity.
+    Growth should come from adding capabilities with clear responsibilities,
+    rather than increasing complexity for its own sake.
