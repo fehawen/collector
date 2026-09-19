@@ -44,14 +44,13 @@ Evidence
 
 Collection
 
-
     Collect what the browser actually encounters.
 
     Discard nothing unnecessarily.
 
     Preserve original artifact bytes.
 
-    Preserve enough metadata to understand where an artifact came from.
+    Preserve response metadata that may be useful for downstream analysis.
 
     Do not introduce additional requests merely to reproduce resources that the
     browser has already provided.

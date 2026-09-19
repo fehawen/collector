@@ -99,7 +99,33 @@ ADR-004: Browser-observed resources are captured from responses.
         collector does not generate additional requests for these artifacts.
 
 
-ADR-005: Artifact storage is content-addressed.
+ADR-005: Browser responses are recorded separately from artifacts.
+
+    Context
+
+        Browser responses contain useful metadata even when their bodies are not
+        preserved as artifacts.
+
+    Decision
+
+        collector records every browser response in responses.jsonl.
+
+        Response records contain the resource type, URL and response headers.
+
+        Artifact preservation remains selective and is handled separately.
+
+    Consequences
+
+        Response metadata is available for downstream analysis independently of
+        artifact preservation.
+
+        collector can observe responses without unnecessarily storing their
+        bodies.
+
+        Response observations and artifact storage remain separate concerns.
+
+
+ADR-006: Artifact storage is content-addressed.
 
     Context
 
@@ -125,7 +151,7 @@ ADR-005: Artifact storage is content-addressed.
         Each run remains self-contained.
 
 
-ADR-006: Structured output is versioned.
+ADR-007: Structured output is versioned.
 
     Context
 
@@ -142,7 +168,7 @@ ADR-006: Structured output is versioned.
         Downstream tools can evolve without ambiguity.
 
 
-ADR-007: Scope is enforced before page processing.
+ADR-008: Scope is enforced before page processing.
 
     Context
 

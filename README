@@ -18,18 +18,22 @@ resources.
 
 The current collector produces:
 
-- manifest.json
-    Run metadata and configured targets.
+    - manifest.json
+        Run metadata and configured targets.
 
-- observations.jsonl
-    One record for each processed page, including its URL, title and HTML.
+    - observations.jsonl
+        One record for each processed page, including its URL, title and HTML.
 
-- artifacts.jsonl
-    A record for each observed script or stylesheet response, including
-    its URL, SHA-256 hash and stored path.
+    - artifacts.jsonl
+        A record for each observed script or stylesheet response whose body is
+        preserved, including its URL, SHA-256 hash and stored path.
 
-- artifacts/
-    The preserved script and stylesheet bytes.
+    - responses.jsonl
+        One record for each browser response, including its resource type, URL
+        and response headers.
+
+    - artifacts/
+        The preserved script and stylesheet bytes.
 
 Artifact files are content-addressed using SHA-256.  Identical bytes encountered
 multiple times during a run are stored only once, while artifacts.jsonl
