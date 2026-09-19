@@ -15,6 +15,29 @@ export async function createPage(browser) {
 }
 
 export async function navigate(page, url) {
+    const responses = []
+    const responsePromises = []
+
+    const responseHandler = (response) => {
+        const type = response.request().resourceType()
+
+        if (type !== 'script' && type !== 'stylesheet') {
+            return
+        }
+
+        const promise = response.body().then(body => {
+            responses.push({
+                type,
+                url: response.url(),
+                body
+            })
+        })
+
+        responsePromises.push(promise)
+    }
+
+    page.on('response', responseHandler)
+
     const downloadPromise = page.waitForEvent('download', {
         timeout: 1000
     }).catch(() => null)
@@ -23,9 +46,18 @@ export async function navigate(page, url) {
 
     try {
         await page.goto(url)
-    }
-    catch (error) {
+    } catch (error) {
         navigationError = error
+    }
+
+    page.off('response', responseHandler)
+
+    try {
+        await Promise.all(responsePromises)
+    } catch (error) {
+        if (!navigationError) {
+            navigationError = error
+        }
     }
 
     const download = await downloadPromise
@@ -47,7 +79,8 @@ export async function navigate(page, url) {
     }
 
     return {
-        type: 'page'
+        type: 'page',
+        responses
     }
 }
 

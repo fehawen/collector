@@ -1,49 +1,51 @@
 import path from 'node:path'
 import { createHash } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import {
+    access,
+    mkdir,
+    writeFile
+} from 'node:fs/promises'
 import { appendJsonLine } from './util.js'
 
-export async function preserveArtifact(run, discovery) {
+export async function preserveArtifact(run, response) {
     const extensions = {
         script: '.js',
         stylesheet: '.css'
     }
 
-    const extension = extensions[discovery.type]
+    const extension = extensions[response.type]
 
     if (extension === undefined) {
-        throw new Error(`Unsupported artifact type: ${discovery.type}`)
+        throw new Error(`Unsupported artifact type: ${response.type}`)
     }
-
-    const response = await fetch(discovery.url)
-
-    if (!response.ok) {
-        throw new Error(
-            `Failed to fetch ${discovery.url}: ${response.status} ${response.statusText}`
-        )
-    }
-
-    const content = Buffer.from(await response.arrayBuffer())
 
     const sha256 = createHash('sha256')
-        .update(content)
+        .update(response.body)
         .digest('hex')
 
     const relativePath = path.join(
         'artifacts',
-        discovery.type,
+        response.type,
         `${sha256}${extension}`
     )
 
     const file = path.join(run.directory, relativePath)
-
     await mkdir(path.dirname(file), { recursive: true })
-    await writeFile(file, content)
+
+    try {
+        await access(file)
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            throw error
+        }
+
+        await writeFile(file, response.body)
+    }
 
     return {
         version: 1,
-        type: discovery.type,
-        url: discovery.url,
+        type: response.type,
+        url: response.url,
         sha256,
         path: relativePath
     }

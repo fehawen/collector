@@ -9,10 +9,7 @@ import {
     navigate,
     observePage
 } from './browser.js'
-import {
-    discoverPages,
-    discoverResources
-} from './discover.js'
+import { discoverPages } from './discover.js'
 import {
     preserveArtifact,
     recordArtifact
@@ -67,21 +64,22 @@ async function main() {
 
                 const result = await navigate(page, discovery.url)
 
+
                 if (result.type === 'download') {
                     const artifact = await preserveArtifact(run, result)
                     await recordArtifact(run, artifact)
                     continue
                 }
 
+                for (const response of result.responses) {
+                    const artifact = await preserveArtifact(run, response)
+                    await recordArtifact(run, artifact)
+                }
+
                 const observation = await observePage(page)
                 await recordObservation(run, observation)
 
-                const resources = await discoverResources(page)
                 const pageDiscoveries = await discoverPages(page)
-
-                for (const resource of resources) {
-                    queue.add(resource)
-                }
 
                 for (const pageDiscovery of pageDiscoveries) {
                     if (scope.isAllowed(pageDiscovery)) {
