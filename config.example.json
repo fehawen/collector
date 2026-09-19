@@ -6,11 +6,15 @@
     ],
     "scope": {
         "include": [
+            "example.com",
             "*.example.com"
         ],
         "exclude": [
             "bar.example.com",
             "baz.example.com"
         ]
+    },
+    "headers": {
+        "X-Collector": "collector"
     }
 }

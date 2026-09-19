@@ -114,6 +114,9 @@ Browser Automation
 
     It collects evidence from browser state and browser-observed responses.
 
+    Browser configuration should be applied at the browser-context level when it
+    represents behavior shared by the pages and requests within that context.
+
 
 Artifacts
 
