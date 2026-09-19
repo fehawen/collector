@@ -3,8 +3,8 @@ import process from 'node:process'
 import { loadConfig } from './config.js'
 import { createRun } from './run.js'
 import {
-    closeBrowser,
     launchBrowser,
+    createContext,
     createPage,
     navigate,
     observePage
@@ -31,8 +31,11 @@ async function main() {
     const run = await createRun(config.targets, options.output)
     const browser = await launchBrowser()
 
+    let context
+
     try {
-        const page = await createPage(browser)
+        context = await createContext(browser, config.headers)
+        const page = await createPage(context)
         const queue = createQueue()
         const pages = createPages()
 
@@ -101,9 +104,13 @@ async function main() {
                 await recordArtifact(run, artifact)
             }
         }
-    }
-    finally {
-        await closeBrowser(browser)
+    } finally {
+
+        if (context) {
+            await context.close()
+        }
+
+        await browser.close()
     }
 
     printRun(run)

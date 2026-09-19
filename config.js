@@ -36,6 +36,7 @@ function validateConfig(config) {
 
     validatePatterns(config.scope.include, 'scope.include', true)
     validatePatterns(config.scope.exclude, 'scope.exclude', false)
+    validateHeaders(config.headers)
 }
 
 function validateTarget(target) {
@@ -80,6 +81,30 @@ function validatePatterns(patterns, name, required) {
         if (typeof pattern !== 'string' || pattern.length === 0) {
             throw new Error(
                 `Invalid configuration: ${name} contains an invalid entry`
+            )
+        }
+    }
+}
+
+function validateHeaders(headers) {
+    if (headers === undefined) {
+        return
+    }
+
+    if (
+        headers === null ||
+        typeof headers !== 'object' ||
+        Array.isArray(headers)
+    ) {
+        throw new Error(
+            'Invalid configuration: headers must be an object'
+        )
+    }
+
+    for (const [name, value] of Object.entries(headers)) {
+        if (name.length === 0 || typeof value !== 'string') {
+            throw new Error(
+                'Invalid configuration: headers must contain string names and values'
             )
         }
     }

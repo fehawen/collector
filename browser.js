@@ -6,12 +6,14 @@ export async function launchBrowser() {
     })
 }
 
-export async function closeBrowser(browser) {
-    await browser.close()
+export async function createPage(context) {
+    return await context.newPage()
 }
 
-export async function createPage(browser) {
-    return await browser.newPage()
+export async function createContext(browser, headers = {}) {
+    return await browser.newContext({
+        extraHTTPHeaders: headers
+    })
 }
 
 export async function navigate(page, url) {
