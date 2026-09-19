@@ -82,11 +82,10 @@ Architecture
 
 State
 
-
     State should be explicit.
 
-    Work queues, visited pages and run metadata should be visible and
-    inspectable rather than hidden inside recursive control flow.
+    The work queue and run metadata should be visible and inspectable rather
+    than hidden inside recursive control flow.
 
     The state of a collection run should be understandable from its data and
     output.
