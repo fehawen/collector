@@ -36,31 +36,44 @@ export async function navigate(page, url) {
         responsePromises.push(promise)
     }
 
-    page.on('response', responseHandler)
+    let downloadResolve
 
-    const downloadPromise = page.waitForEvent('download', {
-        timeout: 1000
-    }).catch(() => null)
+    const downloadPromise = new Promise((resolve) => {
+        downloadResolve = resolve
+    })
+
+    const downloadHandler = (download) => {
+        downloadResolve(download)
+    }
+
+    page.on('response', responseHandler)
+    page.on('download', downloadHandler)
 
     let navigationError
+    let download
 
     try {
-        await page.goto(url)
-    } catch (error) {
-        navigationError = error
-    }
-
-    page.off('response', responseHandler)
-
-    try {
-        await Promise.all(responsePromises)
-    } catch (error) {
-        if (!navigationError) {
-            navigationError = error
+        try {
+            await page.goto(url)
+        } catch (error) {
+            if (isDownloadError(error)) {
+                download = await downloadPromise
+            } else {
+                navigationError = error
+            }
         }
-    }
 
-    const download = await downloadPromise
+        try {
+            await Promise.all(responsePromises)
+        } catch (error) {
+            if (!navigationError) {
+                navigationError = error
+            }
+        }
+    } finally {
+        page.off('response', responseHandler)
+        page.off('download', downloadHandler)
+    }
 
     if (download) {
         const stream = await download.createReadStream()
@@ -82,6 +95,11 @@ export async function navigate(page, url) {
         type: 'page',
         responses
     }
+}
+
+function isDownloadError(error) {
+    return error instanceof Error &&
+        error.message.includes('Download is starting')
 }
 
 export async function observePage(page) {
