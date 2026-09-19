@@ -13,7 +13,8 @@ generate reports.  It records what it observes and leaves interpretation to
 other tools.
 
 A collection run navigates to configured targets, discovers additional navigable
-pages, observes page state, and preserves selected browser-observed resources.
+pages, records page observations, and preserves selected browser-observed
+resources.
 
 The current collector produces:
 
