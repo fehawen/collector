@@ -16,5 +16,8 @@
     },
     "headers": {
         "X-Collector": "collector"
+    },
+    "rateLimit": {
+        "requestsPerSecond": 5
     }
 }

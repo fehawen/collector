@@ -19,6 +19,7 @@ import { recordResponse } from './responses.js'
 import { createQueue } from './queue.js'
 import { createPages } from './pages.js'
 import { createScope } from './scope.js'
+import { createRateLimiter } from './rate-limit.js'
 
 const COLLECTOR_VERSION = '0.1.0'
 
@@ -35,11 +36,16 @@ async function main() {
 
     try {
         context = await createContext(browser, config.headers)
+
         const page = await createPage(context)
+
         const queue = createQueue()
         const pages = createPages()
-
         const scope = createScope(config.scope)
+
+        const limiter = createRateLimiter(
+            config.rateLimit?.requestsPerSecond
+        )
 
         for (const target of run.targets) {
             if (scope.isAllowed(target)) {
@@ -65,6 +71,8 @@ async function main() {
                 }
 
                 pages.add(discovery.url)
+
+                await limiter.wait()
 
                 const result = await navigate(page, discovery.url)
 

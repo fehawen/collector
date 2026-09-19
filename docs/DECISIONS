@@ -130,7 +130,48 @@ ADR-005: Shared browser request configuration belongs to the browser context.
         without expanding the navigation interface.
 
 
-ADR-006: Browser responses are recorded separately from artifacts.
+ADR-006: Rate limiting applies to page navigations at the run level.
+
+    Context
+
+        collector may need to respect a rate limit imposed by the target
+        application or collection environment.
+
+        A browser navigation can generate many HTTP requests for documents,
+        scripts, stylesheets and other resources. Rate limiting each of those
+        requests individually would make the collection rate dependent on the
+        application's resource loading behavior.
+
+    Decision
+
+        collector applies rate limiting to intentional page navigations.
+
+        The rate limit is shared across the entire collection run.
+
+        Redirects and browser-generated resource requests are part of the
+        navigation that caused them and are not individually rate limited.
+
+        The rate is configured through rateLimit.requestsPerSecond.
+
+        The rate limiter starts with a full bucket.
+
+        Targets and hostnames do not have separate rate limiters.
+
+    Consequences
+
+        The collection rate is predictable independently of how many resources
+        an application loads for each page.
+
+        Multiple targets in one run share the same rate limit.
+
+        collector does not need to infer relationships between targets or
+        hostnames.
+
+        The configuration author is responsible for choosing an appropriate
+        run-level rate.
+
+
+ADR-007: Browser responses are recorded separately from artifacts.
 
     Context
 
@@ -156,7 +197,7 @@ ADR-006: Browser responses are recorded separately from artifacts.
         Response observations and artifact storage remain separate concerns.
 
 
-ADR-007: Artifact storage is content-addressed.
+ADR-008: Artifact storage is content-addressed.
 
     Context
 
@@ -182,7 +223,7 @@ ADR-007: Artifact storage is content-addressed.
         Each run remains self-contained.
 
 
-ADR-008: Structured output is versioned.
+ADR-009: Structured output is versioned.
 
     Context
 
@@ -199,7 +240,7 @@ ADR-008: Structured output is versioned.
         Downstream tools can evolve without ambiguity.
 
 
-ADR-009: Scope is enforced before page processing.
+ADR-010: Scope is enforced before page processing.
 
     Context
 

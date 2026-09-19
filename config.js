@@ -37,6 +37,7 @@ function validateConfig(config) {
     validatePatterns(config.scope.include, 'scope.include', true)
     validatePatterns(config.scope.exclude, 'scope.exclude', false)
     validateHeaders(config.headers)
+    validateRateLimit(config.rateLimit)
 }
 
 function validateTarget(target) {
@@ -107,5 +108,33 @@ function validateHeaders(headers) {
                 'Invalid configuration: headers must contain string names and values'
             )
         }
+    }
+}
+
+function validateRateLimit(rateLimit) {
+    if (rateLimit === undefined) {
+        return
+    }
+
+    if (
+        rateLimit === null ||
+        typeof rateLimit !== 'object' ||
+        Array.isArray(rateLimit)
+    ) {
+        throw new Error(
+            'Invalid configuration: rateLimit must be an object'
+        )
+    }
+
+    const value = rateLimit.requestsPerSecond
+
+    if (
+        typeof value !== 'number' ||
+        !Number.isFinite(value) ||
+        value <= 0
+    ) {
+        throw new Error(
+            'Invalid configuration: rateLimit.requestsPerSecond must be a positive number'
+        )
     }
 }
