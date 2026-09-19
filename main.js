@@ -15,6 +15,7 @@ import {
     recordArtifact
 } from './artifacts.js'
 import { recordObservation } from './observations.js'
+import { recordResponse } from './responses.js'
 import { createQueue } from './queue.js'
 import { createPages } from './pages.js'
 import { createScope } from './scope.js'
@@ -72,8 +73,12 @@ async function main() {
                 }
 
                 for (const response of result.responses) {
-                    const artifact = await preserveArtifact(run, response)
-                    await recordArtifact(run, artifact)
+                    await recordResponse(run, response)
+
+                    if (response.body !== undefined) {
+                        const artifact = await preserveArtifact(run, response)
+                        await recordArtifact(run, artifact)
+                    }
                 }
 
                 const observation = await observePage(page)

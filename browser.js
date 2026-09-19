@@ -21,17 +21,21 @@ export async function navigate(page, url) {
     const responseHandler = (response) => {
         const type = response.request().resourceType()
 
-        if (type !== 'script' && type !== 'stylesheet') {
-            return
-        }
+        const promise = (async () => {
+            const headers = await response.allHeaders()
 
-        const promise = response.body().then(body => {
-            responses.push({
+            const result = {
                 type,
                 url: response.url(),
-                body
-            })
-        })
+                headers
+            }
+
+            if (type === 'script' || type === 'stylesheet') {
+                result.body = await response.body()
+            }
+
+            responses.push(result)
+        })()
 
         responsePromises.push(promise)
     }
