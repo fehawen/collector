@@ -79,7 +79,10 @@ async function main() {
 
                 if (result.type === 'download') {
                     const artifact = await preserveArtifact(run, result)
-                    await recordArtifact(run, artifact)
+                    if (artifact !== undefined) {
+                        await recordArtifact(run, artifact)
+                    }
+
                     continue
                 }
 

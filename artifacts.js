@@ -7,16 +7,25 @@ import {
 } from 'node:fs/promises'
 import { appendJsonLine } from './util.js'
 
-export async function preserveArtifact(run, response) {
-    const extensions = {
-        script: '.js',
-        stylesheet: '.css'
+function extensionFor(response) {
+    switch (response.type) {
+        case 'script':
+            return '.js'
+        case 'stylesheet':
+            return '.css'
+        case 'download':
+            return path.extname(response.filename).toLowerCase()
+        default:
+            return undefined
     }
+}
 
-    const extension = extensions[response.type]
+export async function preserveArtifact(run, response) {
+    const extension = extensionFor(response)
 
     if (extension === undefined) {
-        throw new Error(`Unsupported artifact type: ${response.type}`)
+        console.error(`Skipping unsupported artifact type: ${response.type}`)
+        return undefined
     }
 
     const sha256 = createHash('sha256')
@@ -42,13 +51,19 @@ export async function preserveArtifact(run, response) {
         await writeFile(file, response.body)
     }
 
-    return {
+    const artifact = {
         version: 1,
         type: response.type,
         url: response.url,
         sha256,
         path: relativePath
     }
+
+    if (response.type === 'download') {
+        artifact.filename = response.filename
+    }
+
+    return artifact
 }
 
 export async function recordArtifact(run, artifact) {
