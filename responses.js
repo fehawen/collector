@@ -12,6 +12,7 @@ function record(response) {
         version: 1,
         type: response.type,
         url: response.url,
+        status: response.status,
         headers: response.headers
     }
 }

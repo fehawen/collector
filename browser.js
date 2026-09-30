@@ -29,10 +29,15 @@ export async function navigate(page, url) {
             const result = {
                 type,
                 url: response.url(),
+                status: response.status(),
                 headers
             }
 
-            if (type === 'script' || type === 'stylesheet') {
+            if (
+                (type === 'script' || type === 'stylesheet') &&
+                response.status() >= 200 &&
+                response.status() < 300
+            ) {
                 result.body = await response.body()
             }
 
