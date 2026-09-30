@@ -13,6 +13,7 @@ export async function createRun(targets, output) {
     const run = {
         id,
         targets,
+        origins: originsFor(targets),
         directory,
         started
     }
@@ -25,6 +26,7 @@ export async function createRun(targets, output) {
             collector: COLLECTOR_VERSION,
             run_id: run.id,
             targets: run.targets,
+            origins: run.origins,
             started: run.started
         }
     )
@@ -42,4 +44,10 @@ function runId() {
     const second = String(now.getSeconds()).padStart(2, '0')
 
     return `${year}${month}${day}-${hour}${minute}${second}`
+}
+
+function originsFor(targets) {
+    return [...new Set(
+        targets.map(target => new URL(target).origin)
+    )]
 }
