@@ -5,15 +5,19 @@
   "license": "ISC",
   "type": "module",
   "bin": {
-    "collector": "./main.js"
+    "collector": "./dist/collector.js"
   },
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "start": "node main.js"
+    "build": "node build.js",
+    "link": "yarn build && yarn link"
   },
   "dependencies": {
     "playwright": "^1.62.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }
