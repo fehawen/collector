@@ -6,8 +6,5 @@ build({
     platform: 'node',
     format: 'esm',
     packages: 'external',
-    outfile: 'dist/collector.js',
-    banner: {
-        js: '#!/usr/bin/env node'
-    }
+    outfile: 'dist/collector.js'
 }).catch(() => process.exit(1))
