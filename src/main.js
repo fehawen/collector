@@ -2,6 +2,7 @@ import process from 'node:process'
 
 import { loadConfig } from './config.js'
 import { createRun } from './run.js'
+import { loadAuthState } from './auth-state.js'
 import {
     launchBrowser,
     createContext,
@@ -21,11 +22,12 @@ import { createPages } from './pages.js'
 import { createScope } from './scope.js'
 import { createRateLimiter } from './rate-limit.js'
 
-const COLLECTOR_VERSION = '0.1.0'
+const COLLECTOR_VERSION = '1.0'
 
 async function main() {
     const options = parseArguments()
     const config = await loadConfig(options.config)
+    const authState = await loadAuthState(config.session?.authState)
 
     printBanner()
 
@@ -35,7 +37,7 @@ async function main() {
     let context
 
     try {
-        context = await createContext(browser, config.headers)
+        context = await createContext(browser, config.headers ?? {}, authState)
 
         const page = await createPage(context)
 

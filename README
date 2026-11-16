@@ -57,6 +57,11 @@ precisely the maximum sustained rate of intentional page navigations for the
 entire collection run.  Browser-generated requests such as scripts, stylesheets
 and other resources are not individually rate limited.
 
+Authentication state can optionally be supplied through session.authState.  The
+file uses Playwright storage-state format, with additional sessionStorage data
+captured by generate-auth-state.  Relative paths are resolved relative to the
+configuration file.
+
 See config.example.json for configuration example.
 
 collector is built from small, focused modules with explicit data flow and

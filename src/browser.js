@@ -10,10 +10,30 @@ export async function createPage(context) {
     return await context.newPage()
 }
 
-export async function createContext(browser, headers = {}) {
-    return await browser.newContext({
-        extraHTTPHeaders: headers
+
+export async function createContext(browser, headers, authState) {
+    const context = await browser.newContext({
+        extraHTTPHeaders: headers,
+        ...(authState
+            ? { storageState: authState.storageState }
+            : {})
     })
+
+    if (authState) {
+        await context.addInitScript((sessionStorageByOrigin) => {
+            const entries = sessionStorageByOrigin[window.location.origin]
+
+            if (!entries || window.sessionStorage.length !== 0) {
+                return
+            }
+
+            for (const [key, value] of Object.entries(entries)) {
+                window.sessionStorage.setItem(key, value)
+            }
+        }, authState.sessionStorage)
+    }
+
+    return context
 }
 
 export async function navigate(page, url) {

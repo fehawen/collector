@@ -1,10 +1,13 @@
 import fs from 'node:fs/promises'
+import path from 'node:path'
 
 export async function loadConfig(file) {
-    const content = await fs.readFile(file, 'utf8')
+    const configPath = path.resolve(file)
+    const content = await fs.readFile(configPath, 'utf8')
     const config = JSON.parse(content)
 
     validateConfig(config)
+    await validateSession(config, configPath)
 
     return config
 }
@@ -137,4 +140,52 @@ function validateRateLimit(rateLimit) {
             'Invalid configuration: rateLimit.requestsPerSecond must be a positive number'
         )
     }
+}
+
+async function validateSession(config, configPath) {
+    const session = config.session
+
+    if (session === undefined) {
+        return
+    }
+
+    if (
+        session === null ||
+        typeof session !== 'object' ||
+        Array.isArray(session)
+    ) {
+        throw new Error(
+            'Invalid configuration: session must be an object'
+        )
+    }
+
+    if (
+        typeof session.authState !== 'string' ||
+        session.authState.length === 0
+    ) {
+        throw new Error(
+            'Invalid configuration: session.authState must be a non-empty string'
+        )
+    }
+
+    const authStatePath = path.resolve(
+        path.dirname(configPath),
+        session.authState
+    )
+
+    try {
+        const stat = await fs.stat(authStatePath)
+
+        if (!stat.isFile()) {
+            throw new Error('not a regular file')
+        }
+
+        await fs.access(authStatePath)
+    } catch (error) {
+        throw new Error(
+            `Invalid configuration: cannot access session.authState file: ${authStatePath} (${error.message})`
+        )
+    }
+
+    session.authState = authStatePath
 }

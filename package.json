@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "node build.js",
-    "link": "yarn build && yarn link"
+    "link": "yarn build && yarn link",
+    "generate-auth-state": "node scripts/generate-auth-state.js"
   },
   "dependencies": {
     "playwright": "^1.62.1"
